@@ -56,6 +56,16 @@ var SALAD = {
   },
 };
 
+var DRINKS = {
+  COLA: {
+    cost: 50,
+    kcal: 40,
+  },
+  COFFEE: {
+    cost: 80,
+    kcal: 20,
+  },
+};
 function SimpleFood(food) {
   this.food = copyObject(food)
 };
@@ -68,66 +78,74 @@ SimpleFood.prototype.calculateCalories = function () {
   return this.food.kcal;
 };
 
-// inherit the Salad class from the SimpleFood class
+// inherit the Salad & Drinks classes from the SimpleFood class
 function Salad(salad) {
-  SimpleFood.call(this, salad)
-};
-Salad.prototype = Object.create(SimpleFood.prototype);
-Salad.prototype.constructor = Salad;
 
-var DRINKS = {
-  COLA: {
-    cost: 50,
-    kcal: 40,
-  },
-  COFFEE: {
-    cost: 80,
-    kcal: 20,
-  },
 };
 
-function Drinks(drinks) {
-  SimpleFood.call(this, drinks)
-};
-Drinks.prototype = Object.create(SimpleFood.prototype);
-Drinks.prototype.constructor = Drinks;
+function createSalad(type) {
+  if (!type) return;
 
-function Hamburger(size, stuffing) {
-  if ((size === undefined) || (stuffing === undefined)) {
-    return 
+  function Salad(type) {
+    SimpleFood.call(this, type)
+  };
+  Salad.prototype = Object.create(SimpleFood.prototype);
+  Salad.prototype.constructor = Salad;
+
+  return new Salad(type);
+}
+
+
+function createDrinks(type) {
+  if (!type) return;
+
+  function Drinks(type) {
+    SimpleFood.call(this, type)
+  };
+  Drinks.prototype = Object.create(SimpleFood.prototype);
+  Drinks.prototype.constructor = Drinks;
+
+  return new Drinks(type);
+}
+
+function createHamburger(size, stuffing) {
+  if (!size || !stuffing) return;
+
+  function Hamburger(size, stuffing) {
+    this.size = size;
+    this.stuffing = stuffing;
   }
-  this.size = size;
-  this.stuffing = stuffing;
-};
-Hamburger.prototype.getSize = function () {
-  return this.size;
-};
-Hamburger.prototype.getStuffing = function () {
-  return this.stuffing;
-};
-Hamburger.prototype.calculatePrice = function () {
-  var sizeCost = this.getSize().cost;
-  var stuffingCost = this.getStuffing().reduce(function(acc, cur) {
-    return acc + cur.cost;
-  }, 0);
-  return sizeCost + stuffingCost;
-};
-Hamburger.prototype.calculateCalories = function () {
-  var sizeKcal = this.getSize().kcal;
-  var stuffingKcal = this.getStuffing().reduce(function(acc, cur) {
-    return acc + cur.kcal;
-  }, 0);
-  return sizeKcal + stuffingKcal;
-};
 
+  Hamburger.prototype.getSize = function () {
+    return this.size;
+  };
+  Hamburger.prototype.getStuffing = function () {
+    return this.stuffing;
+  };
+  Hamburger.prototype.calculatePrice = function () {
+    var sizeCost = this.getSize().cost;
+    var stuffingCost = this.getStuffing().reduce(function(acc, cur) {
+      return acc + cur.cost;
+    }, 0);
+    return sizeCost + stuffingCost;
+  };
+  Hamburger.prototype.calculateCalories = function () {
+    var sizeKcal = this.getSize().kcal;
+    var stuffingKcal = this.getStuffing().reduce(function(acc, cur) {
+      return acc + cur.kcal;
+    }, 0);
+    return sizeKcal + stuffingKcal;
+  };
+
+  return new Hamburger(size, stuffing);
+}
 function Order() {
   this.dishes = {};
   this.paid = false;
 };
 
 Order.prototype.add = function (dish) {
-  console.log(Object.keys(dish).length < 2);
-  if (this.paid || Object.keys(dish).length < 2 ) return;
+  if (this.paid || !dish) return;
 
   // add simple 'hash'
   this.dishes[Date.now() + Math.random()] = dish;
@@ -171,15 +189,17 @@ var order = new Order();
 
 // we use the composition when creating an order. An example of such an order is below
 
-// order.add(new Hamburger(HAMBURGER.SIZE_SMALL));
-// order.add(new Hamburger(HAMBURGER.SIZE_SMALL, [HAMBURGER.STUFFING_CHEESE, HAMBURGER.STUFFING_POTATO]));
-// order.add(new Salad(SALAD.RUSSIAN_SALAD));
-// order.add(new Salad(SALAD.RUSSIAN_SALAD));
+order.add(createHamburger());
+order.add(createHamburger(HAMBURGER.SIZE_SMALL, [HAMBURGER.STUFFING_CHEESE, HAMBURGER.STUFFING_POTATO]));
+order.add(createSalad(SALAD.RUSSIAN_SALAD));
+order.add(createDrinks(DRINKS.COFFEE));
+// order.add(createSalad(SALAD.RUSSIAN_SALAD));
+
 // "freeze" the Order object for changes (call the completed method, which switches the paid flag to false mode
 // order.completed();
-// order.add(new Salad(SALAD.RUSSIAN_SALAD));
+// order.add(createSalad(SALAD.RUSSIAN_SALAD));
 
 // order.remove(order.getDishHash()[2]);
-// console.log(order);
+console.log(order);
 // console.log(order.getCostSummary());
 // console.log(order.getKcalSummary());

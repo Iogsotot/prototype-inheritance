@@ -68,3 +68,28 @@
      * @return {Number} Калорийность в калориях
      */
     Hamburger.prototype.calculateCalories = function () ...
+
+
+## Как пользоваться программой
+
+##### Для того, чтобы совершить заказ
+
+1) Создаём экземляр заказа:
+```
+    var order = new Order();
+```
+    
+2) Добавляем еду в заказ
+```
+order.add(<тип еды>(<параметры создания позиции>))
+```
+- тип еды может быть createHamburger или createSimpleFood
+- параметры гамбургера смотреть в константах (большой, маленький, с сыром и тд)
+- параметры простой еды (напитки, салат) - это название напитка или салата (подробнее смотреть в константах)
+
+Примеры:
+```
+order.add(createHamburger(HAMBURGER.SIZE_SMALL, [HAMBURGER.STUFFING_CHEESE, HAMBURGER.STUFFING_POTATO]));
+order.add(createSimpleFood(Salad, SALAD.RUSSIAN_SALAD));
+order.add(createSimpleFood(Drinks, DRINKS.COFFEE));
+```

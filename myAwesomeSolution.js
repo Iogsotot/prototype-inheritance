@@ -93,6 +93,9 @@ Drinks.prototype = Object.create(SimpleFood.prototype);
 Drinks.prototype.constructor = Drinks;
 
 function Hamburger(size, stuffing) {
+  if ((size === undefined) || (stuffing === undefined)) {
+    return 
+  }
   this.size = size;
   this.stuffing = stuffing;
 };
@@ -123,8 +126,8 @@ function Order() {
 };
 
 Order.prototype.add = function (dish) {
-  if (this.paid) return;
-
+  console.log(Object.keys(dish).length < 2);
+  if (this.paid || Object.keys(dish).length < 2 ) return;
 
   // add simple 'hash'
   this.dishes[Date.now() + Math.random()] = dish;
@@ -166,13 +169,17 @@ Order.prototype.completed = function () {
 
 var order = new Order();
 
-order.add(new Hamburger(HAMBURGER.SIZE_SMALL, [HAMBURGER.STUFFING_CHEESE, HAMBURGER.STUFFING_POTATO]));
-order.add(new Salad(SALAD.RUSSIAN_SALAD));
-order.add(new Salad(SALAD.RUSSIAN_SALAD));
-order.completed();
-order.add(new Salad(SALAD.RUSSIAN_SALAD));
+// we use the composition when creating an order. An example of such an order is below
 
-order.remove(order.getDishHash()[2]);
-console.log(order);
-console.log(order.getCostSummary());
-console.log(order.getKcalSummary());
+// order.add(new Hamburger(HAMBURGER.SIZE_SMALL));
+// order.add(new Hamburger(HAMBURGER.SIZE_SMALL, [HAMBURGER.STUFFING_CHEESE, HAMBURGER.STUFFING_POTATO]));
+// order.add(new Salad(SALAD.RUSSIAN_SALAD));
+// order.add(new Salad(SALAD.RUSSIAN_SALAD));
+// "freeze" the Order object for changes (call the completed method, which switches the paid flag to false mode
+// order.completed();
+// order.add(new Salad(SALAD.RUSSIAN_SALAD));
+
+// order.remove(order.getDishHash()[2]);
+// console.log(order);
+// console.log(order.getCostSummary());
+// console.log(order.getKcalSummary());

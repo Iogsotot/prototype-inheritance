@@ -22,6 +22,7 @@ function copyObject(orig, deep) {
   return copy;
 }
 
+// constants 
 var HAMBURGER = {
   SIZE_SMALL: {
     cost: 50,
@@ -66,6 +67,9 @@ var DRINKS = {
     kcal: 20,
   },
 };
+
+
+// Base class for simple food (salad & drinks)
 function SimpleFood(food) {
   this.food = copyObject(food)
 };
@@ -78,36 +82,26 @@ SimpleFood.prototype.calculateCalories = function () {
   return this.food.kcal;
 };
 
+
+function createSimpleFood(foodType, foodName) {
+  if (!foodType || !foodName) return;
+  return new foodType(foodName);
+}
+
 // inherit the Salad & Drinks classes from the SimpleFood class
-function Salad(salad) {
-
+function Salad(type) {
+  SimpleFood.call(this, type)
 };
+Salad.prototype = Object.create(SimpleFood.prototype);
+Salad.prototype.constructor = Salad;
 
-function createSalad(type) {
-  if (!type) return;
+function Drinks(type) {
+  SimpleFood.call(this, type)
+};
+Drinks.prototype = Object.create(SimpleFood.prototype);
+Drinks.prototype.constructor = Drinks;
 
-  function Salad(type) {
-    SimpleFood.call(this, type)
-  };
-  Salad.prototype = Object.create(SimpleFood.prototype);
-  Salad.prototype.constructor = Salad;
-
-  return new Salad(type);
-}
-
-
-function createDrinks(type) {
-  if (!type) return;
-
-  function Drinks(type) {
-    SimpleFood.call(this, type)
-  };
-  Drinks.prototype = Object.create(SimpleFood.prototype);
-  Drinks.prototype.constructor = Drinks;
-
-  return new Drinks(type);
-}
-
+// create Hamburger's instance
 function createHamburger(size, stuffing) {
   if (!size || !stuffing) return;
 
@@ -115,7 +109,6 @@ function createHamburger(size, stuffing) {
     this.size = size;
     this.stuffing = stuffing;
   }
-
   Hamburger.prototype.getSize = function () {
     return this.size;
   };
@@ -139,6 +132,8 @@ function createHamburger(size, stuffing) {
 
   return new Hamburger(size, stuffing);
 }
+
+// create class for order
 function Order() {
   this.dishes = {};
   this.paid = false;
@@ -150,17 +145,14 @@ Order.prototype.add = function (dish) {
   // add simple 'hash'
   this.dishes[Date.now() + Math.random()] = dish;
 };
-
 Order.prototype.getDishHash = function () {
   return Object.keys(this.dishes);
 };
-
 Order.prototype.remove = function (hashKey) {
   if (this.paid) return;
 
   delete this.dishes[hashKey];
 };
-
 Order.prototype.getCostSummary = function () {
   var result = 0;
 
@@ -168,9 +160,8 @@ Order.prototype.getCostSummary = function () {
     result += this.dishes[cur].calculatePrice();
   }
 
-  return result;
+  return 'order cost: ' + result;
 };
-
 Order.prototype.getKcalSummary = function () {
   var result = 0;
 
@@ -178,28 +169,44 @@ Order.prototype.getKcalSummary = function () {
     result += this.dishes[cur].calculateCalories();
   }
 
-  return result;
+  return 'order calories: ' + result;
 };
-
 Order.prototype.completed = function () {
   this.paid = true;
 };
 
+
+//Examples:
+
+// create order:
 var order = new Order();
 
 // we use the composition when creating an order. An example of such an order is below
 
+// trying to add invalid Hamburger:
 order.add(createHamburger());
+
+// adding valid order items:
 order.add(createHamburger(HAMBURGER.SIZE_SMALL, [HAMBURGER.STUFFING_CHEESE, HAMBURGER.STUFFING_POTATO]));
-order.add(createSalad(SALAD.RUSSIAN_SALAD));
-order.add(createDrinks(DRINKS.COFFEE));
-// order.add(createSalad(SALAD.RUSSIAN_SALAD));
+order.add(createSimpleFood(Salad, SALAD.RUSSIAN_SALAD));
+order.add(createSimpleFood(Drinks, DRINKS.COFFEE));
+
+// trying to add invalid drinks:
+order.add(createSimpleFood(Drinks));
 
 // "freeze" the Order object for changes (call the completed method, which switches the paid flag to false mode
-// order.completed();
-// order.add(createSalad(SALAD.RUSSIAN_SALAD));
+order.completed();
+// now you can't add any position in order:
+order.add(createSimpleFood(Salad, SALAD.CAESAR));
 
-// order.remove(order.getDishHash()[2]);
+// del food by hash:
+order.remove(order.getDishHash()[2]);
+
+// show all order:
 console.log(order);
-// console.log(order.getCostSummary());
-// console.log(order.getKcalSummary());
+
+//show order cost summary:
+console.log(order.getCostSummary());
+
+//show order kcal summary:
+console.log(order.getKcalSummary());

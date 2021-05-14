@@ -1,7 +1,5 @@
 "use strict";
 
-"use strict";
-
 function copyOwnPropertiesFrom(target, source, deep) {
   Object.getOwnPropertyNames(source)
     .forEach(function(propKey) {
@@ -106,14 +104,14 @@ Hamburger.prototype.getStuffing = function () {
 };
 Hamburger.prototype.calculatePrice = function () {
   var sizeCost = this.getSize().cost;
-  var stuffingCost = this.getStuffing().reduce((acc, cur) => {
+  var stuffingCost = this.getStuffing().reduce(function(acc, cur) {
     return acc + cur.cost;
   }, 0);
   return sizeCost + stuffingCost;
 };
 Hamburger.prototype.calculateCalories = function () {
   var sizeKcal = this.getSize().kcal;
-  var stuffingKcal = this.getStuffing().reduce((acc, cur) => {
+  var stuffingKcal = this.getStuffing().reduce(function(acc, cur) {
     return acc + cur.kcal;
   }, 0);
   return sizeKcal + stuffingKcal;
